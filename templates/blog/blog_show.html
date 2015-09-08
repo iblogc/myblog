@@ -1,0 +1,157 @@
+{% extends "blog/blog_base.html" %}
+{% load comments %}
+{% load markup %}
+{% load gravatar %}
+{% block title %} {{ blog.caption }} {% endblock %}
+{% block style %}
+<link type="text/css" rel="stylesheet" href="{{ STATIC_URL }}css/monokai.css"/>
+{% endblock %}
+{% block script %}
+<script type="text/javascript" charset="utf-8">
+function bindPostCommentHandler() {
+    $('#comment_form form input.submit-preview').remove();
+    $('#comment_form form').submit(function() {
+        $.ajax({
+            type: "POST",
+            data: $('#comment_form form').serialize(),
+            url: "{% comment_form_target %}",
+            cache: false,
+            dataType: "html",
+            success: function(html, textStatus) {
+                $('#cmt').replaceWith(html);
+                $('#comment_form form')[0].reset();
+            },
+            error: function (XMLHttpRequest, textStatus, errorThrown) {
+                $('#comment_form form').replaceWith('Your comment was unable to be posted at this time.  We apologise for the inconvenience.');
+            }
+        });
+        return false;
+    });
+}
+
+$(document).ready(function() {
+    bindPostCommentHandler();
+});
+</script>
+{% endblock %}
+{% block content %}
+{% block article %} 
+<div class="content">
+    <article class="content-main">
+    {% block article_title %}
+        <h4>{{ blog.caption }}</h4>
+    {% endblock %}
+    <p class="text-muted">
+        <span class="glyphicon glyphicon-user"></span> <small class="text-muted">{{ blog.author }}</small>&nbsp;&nbsp;  
+        <span class="glyphicon glyphicon-time"></span> <small class="text-muted">{{ blog.publish_time }}</small>
+    </p>
+        <section>
+            <div class="blog-content">
+                {% block article_content %}
+                    {{ blog.content|markdown:'codehilite' }}
+                {% endblock %}
+            </div>
+        </section>
+    <section>
+        <div class="row">
+            <div class="col-md-3">
+                <p>  
+					<span class="glyphicon glyphicon-tags text-muted"></span>
+                    {% for tag in blog.tags.all %}
+                         <small class="text-muted"> &nbsp;&nbsp;{{ tag }} </small>
+                    {% endfor %}
+                </p>  
+            </div>
+            <div class="col-md-2 col-md-offset-7">
+				 {% if user.is_authenticated %}
+                <a href="{% url 'delblog' blog.id %}" onclick="return confirm('你确认要删除吗?')" title="delete" class="btn btn-large text-danger"><span class="glyphicon glyphicon-trash"></span></a>
+                <a href="{% url 'updateblog' blog.id %}" title="edit" class="btn btn-large text-info"><span class="glyphicon glyphicon-edit"></span></a>
+                {% endif %}
+				<a href="#cmt" title="comment" class="btn btn-large text-success"><span class="glyphicon glyphicon-comment"></span></a>
+            </div>
+        </div>
+    <hr>
+    </section>    
+    </article>
+    <hr>
+</div>    
+{% endblock %}
+
+{% block comments %}
+<article id="cmt">
+    {% get_comment_count for blog as comment_count %}
+        <small class="text-muted comtop">{{ comment_count }} 评论</small>
+        <hr class="soften">
+    {% get_comment_list for blog as blog_com %}
+    {% for comment in blog_com %}
+        <div class="container-fluid none-padding">
+            <div style="float: left;">
+                <img class="gravatar" src="{% gravatar_url comment.user_email %}">
+            </div>
+            <div style="margin-left: 60px;">
+                <p class="text-muted"><small>{{ comment.user_name }}</small>&nbsp;&nbsp;<small>{{ comment.submit_date}}</small></p>
+                {{ comment.comment }}
+            </div>
+        </div>
+        <hr class="soften">
+    {% endfor %}
+</article>
+
+<article >
+    {% get_comment_form for blog as blog_form %}
+        <div id="comment_form">
+            <form class="form-horizontal col-lg-3" action="{% comment_form_target %}" method="post">
+                <fieldset>
+                {% csrf_token %}
+                {{ blog_form.object_pk }}
+                {{ blog_form.content_type }}
+                {{ blog_form.timestamp }}
+                {{ blog_form.site }}
+                {{ blog_form.submit_date }}
+                {{ blog_form.security_hash }}
+				<div class="form-group">
+                    <div class="input-group">
+                        <span class="input-group-addon">昵称</span>
+                        <input type="text" class="form-control" id="id_name" name="name" placeholder="请输入昵称" required="required" />
+                    </div>
+				</div>
+                <div class="form-group">
+                    <div class="input-group">
+                        <span class="input-group-addon">邮箱</span>
+                        <input type="email" class="form-control" id="id_email" name="email" placeholder="请输入邮箱地址" required="required" />
+                    </div>
+                </div>
+				
+                <div class="form-group">
+					<textarea class="form-control" id="id_comment" name="comment" rows="3" placeholder="说点什么……" required="required"></textarea>
+				</div>
+                <p style="display:none;"><label for="id_honeypot">如果你在该字段中输入任何内容，那么你的评论就会被视为垃圾评论。</label> <input type="text" name="honeypot" id="id_honeypot"></p>
+                <div class="form-actions">				
+                    <input class="btn btn-wide btn-primary mrm" type="submit" name="submit" value="提交">                    
+                    <input type='hidden' name='next' value="{% url 'showcomment' blog.id %}"/>
+                </div>
+                </fieldset>
+            </form>            
+        </div> 
+</article>
+
+<!-- 多说评论框 start -->
+	<div class="ds-thread" data-thread-key="{{blog.id}}" data-title="{{ blog.caption }}" data-url="http://iblogc.duapp.com/blog/blog/{{ blog.id}}/"></div>
+<!-- 多说评论框 end -->
+<!-- 多说公共JS代码 start (一个网页只需插入一次) -->
+
+<script type="text/javascript">
+var duoshuoQuery = {short_name:"iblogc"};
+	(function() {
+		var ds = document.createElement('script');
+		ds.type = 'text/javascript';ds.async = true;
+		ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.unstable.js';
+		ds.charset = 'UTF-8';
+		(document.getElementsByTagName('head')[0] 
+		 || document.getElementsByTagName('body')[0]).appendChild(ds);
+	})();
+	</script>
+
+<!-- 多说公共JS代码 end -->
+{% endblock %}
+{% endblock %}

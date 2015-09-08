@@ -1,0 +1,15 @@
+{% load comments %}
+<article id="cmt">
+    {% get_comment_count for blog as comment_count %}    
+        <small class="text-muted comtop">{{ comment_count }} 评论</small>
+        <hr class="soften">  
+    {% get_comment_list for blog as blog_com %}
+    {% for comment in blog_com %}
+        <div class="container-fluid none-padding">
+			{# <p class="text-muted"><small>{{ comment.user_name }}</small><small>{{ comment.submit_date|date:"F,j,Y" }}</small></p> #} 
+            <p class="text-muted"><small>{{ comment.user_name }}</small><small>{{ comment.submit_date }}</small></p>      
+            {{ comment.comment }}           
+        </div>
+        <hr class="soften">                   
+    {% endfor %}
+</article>

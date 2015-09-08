@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="google-site-verification" content="-6hGgOxVxgReeyDJhtbzekc-NeX-QdGafcy9AdbXCq0" />
+    <meta name="baidu-site-verification" content="4bQJMSOBMz" />
+    <link rel="stylesheet" href="/static/bootstrap/css/bootstrap.css">
+    <link href="{{STATIC_URL}}bootstrap/css/prettify.css" rel="stylesheet">
+    <link href="{{STATIC_URL}}css/flat-ui.css" rel="stylesheet">
+    <link href="{{STATIC_URL}}css/docs.css" rel="stylesheet">
+    
+    <link href="{{STATIC_URL}}css/animate.css" rel="stylesheet">
+    
+{#   <link rel="stylesheet" href="/static/css/reset.css">#}
+    <link rel="stylesheet" href="/static/css/style.css">
+{#    <link rel="stylesheet" href="/static/css/code.css">#}
+    <title>
+        {% block title %}{% endblock %}        
+    </title>
+    {% block style %}{% endblock %}  
+</head>
+
+<body>
+    <div id="content">
+    {% block body %}
+        {% block header %}
+            {# 任何每个页面都可能修改的文本区域的页面 #}
+            {% block menu %}
+            {# 你的菜单 (导航栏) 应该包含在这个区块中. 它是针对站点级的导航, 不是 每个页面专属的导航菜单. #}
+            {% endblock %}
+        {% endblock %}
+        <div class="container">
+        {% block content %}
+            {# 这个区块用来放置页面正文内容. 任何页面正文内容都可能不一样. 它不 包含任何站点导航, 信息头, 页脚, 或其它任何属于 base 模板的东东. #}
+
+            <div class="container-fluid">
+                <div class="row-fluid">
+                    <div class="col-md-9">
+                        {% block article %}
+                            {% block article_title %}
+                                {% comment %}
+                                用来指定 content 区块的 "title". 比如 blog 的标题.
+                                也可以用来 包含 content 内的导航 (译注: 比如提纲), 或其它类似的东东.
+                                大致都是些 页面中并非主要内容的东东.
+                                我不知道这个区块是否应该放到 content tag 内, 并且对应于前面建议的 content tag,
+                                是不是还需要一个 main_content 区块.
+                                {% block [section]_menu %} {% block page_menu %}
+                                这是对应于之前建议的 menu 区块. 用来导航一个章节或页面.
+                                {% endcomment %}
+                            {% endblock %}
+                            {% block article_content %}{% endblock %}
+                        {% endblock %}
+
+                        {% block article_menu %} {% endblock %}
+                        {% block comments %} {% endblock %}
+                        </div>
+                        <div class="col-md-3">
+                            {% block aside %}
+                                {% block tags %}{% endblock %}
+                            {% endblock %}
+                        </div>
+                    </div>
+                </div>
+            {% endblock %}            
+        {% endblock %}		
+    </div>
+	{% block footer %}
+		{# 任何每个页面都可能修改的文本区域的页脚 #}
+    <div class="footer">
+        <!--<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer posuere erat a ante.</p>-->
+        <footer>------<cite title="底部">页面底部</cite></footer>       
+    </div>
+    
+	{% endblock %}
+    <script src="/static/js/modernizr.custom.05898.js"></script>
+    <script src="/static/js/jquery-1.8.3.min.js"></script>
+    <script src="/static/js/jquery-ui-1.10.3.custom.min.js"></script>    
+    <script src="/static/js/jquery.ui.touch-punch.min.js"></script>
+    <script src="/static/js/bootstrap.min.js"></script>
+    <script src="/static/js/bootstrap-select.js"></script>
+    <script src="/static/js/bootstrap-switch.js"></script>
+    <script src="/static/js/flatui-checkbox.js"></script>
+    <script src="/static/js/flatui-radio.js"></script>
+    <script src="/static/js/jquery.tagsinput.js"></script>
+    <script src="/static/js/jquery.placeholder.js"></script>
+{#    <script src="/static/js/jquery.stacktable.js"></script>#}
+{#    <script src="http://vjs.zencdn.net/4.3/video.js"></script>#}
+    <script src="/static/js/application.js"></script>
+    {% block script %}{% endblock %}
+    </div>
+</body>
+</html>
